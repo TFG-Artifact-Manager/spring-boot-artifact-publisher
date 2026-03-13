@@ -1,0 +1,73 @@
+name: Build and Publish Artifact
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+env:
+  ARTIFACT_MANAGER_URL: ${{ secrets.ARTIFACT_MANAGER_URL }}
+  ARTIFACT_MANAGER_TOKEN: ${{ secrets.ARTIFACT_MANAGER_TOKEN }}
+
+jobs:
+  build-and-publish:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Set up JDK 17
+      uses: actions/setup-java@v4
+      with:
+        java-version: '17'
+        distribution: 'temurin'
+        cache: maven
+    
+    - name: Extract version
+      id: version
+      run: |
+        VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
+        echo "version=$VERSION" >> $GITHUB_OUTPUT
+        echo "artifact_name=demo-api-$VERSION.jar" >> $GITHUB_OUTPUT
+    
+    - name: Build with Maven
+      run: mvn clean package -DskipTests
+      env:
+        BUILD_NUMBER: ${{ github.run_number }}
+    
+    - name: Calculate SHA-256
+      id: checksum
+      run: |
+        CHECKSUM=$(sha256sum target/demo-api-*.jar | awk '{print $1}')
+        echo "sha256=$CHECKSUM" >> $GITHUB_OUTPUT
+        JAR_FILE=$(ls target/demo-api-*.jar)
+        echo "jar_path=$JAR_FILE" >> $GITHUB_OUTPUT
+    
+    - name: Get artifact size
+      id: size
+      run: |
+        SIZE=$(stat -f%z "${{ steps.checksum.outputs.jar_path }}" 2>/dev/null || stat -c%s "${{ steps.checksum.outputs.jar_path }}")
+        echo "size=$SIZE" >> $GITHUB_OUTPUT
+    
+    - name: Publish to Artifact Manager
+      run: |
+        curl -X POST "$ARTIFACT_MANAGER_URL/api/artifacts" \
+          -H "Authorization: Bearer $ARTIFACT_MANAGER_TOKEN" \
+          -H "Content-Type: multipart/form-data" \
+          -F "file=@${{ steps.checksum.outputs.jar_path }}" \
+          -F "name=demo-api" \
+          -F "version=${{ steps.version.outputs.version }}" \
+          -F "type=jar" \
+          -F "size=${{ steps.size.outputs.size }}" \
+          -F "checksum=${{ steps.checksum.outputs.sha256 }}" \
+          -F "tags=backend,java,spring-boot,${{ github.ref_name }}" \
+          -F "metadata={\"git_commit\":\"${{ github.sha }}\",\"build_number\":\"${{ github.run_number }}\",\"branch\":\"${{ github.ref_name }}\"}"
+    
+    - name: Upload artifact to GitHub
+      uses: actions/upload-artifact@v4
+      with:
+        name: demo-api-${{ steps.version.outputs.version }}
+        path: ${{ steps.checksum.outputs.jar_path }}
+        retention-days: 7
