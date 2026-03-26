@@ -42,10 +42,14 @@ jobs:
     
     - name: Upload to Artifact Manager
       env:
-        ARTIFACT_MANAGER_URL: ${{ vars.ARTIFACT_MANAGER_URL }}
+        ARTIFACT_MANAGER_URL: ${{ secrets.ARTIFACT_MANAGER_URL }}
         ARTIFACT_MANAGER_KEY: ${{ secrets.ARTIFACT_MANAGER_KEY }}
       run: |
-        curl -X POST "${ARTIFACT_MANAGER_URL}/api/ci/upload" \
+        if [ -z "$ARTIFACT_MANAGER_URL" ]; then
+          echo "::error::ARTIFACT_MANAGER_URL is not set. Configure it in Settings > Secrets and variables > Actions > Secrets."
+          exit 1
+        fi
+        curl -f -X POST "${ARTIFACT_MANAGER_URL}/api/ci/upload" \
           -H "X-API-Key: ${ARTIFACT_MANAGER_KEY}" \
           -F "file=@${{ steps.artifact.outputs.jar_path }}" \
           -F "artifactName=${{ github.event.repository.name }}" \
