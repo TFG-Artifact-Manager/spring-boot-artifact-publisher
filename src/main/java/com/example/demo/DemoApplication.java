@@ -18,7 +18,6 @@ public class DemoApplication {
         //Comentario para commit3
         //OTRA BUILD
         //new build
-        //DD
         SpringApplication.run(DemoApplication.class, args);
     }
 
