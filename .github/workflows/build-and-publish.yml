@@ -49,7 +49,12 @@ jobs:
           echo "::error::ARTIFACT_MANAGER_URL is not set. Configure it in Settings > Secrets and variables > Actions > Secrets."
           exit 1
         fi
-        curl -f -X POST "${ARTIFACT_MANAGER_URL}/api/ci/upload" \
+        echo "URL length: ${#ARTIFACT_MANAGER_URL}"
+        echo "URL starts with https: $(echo "$ARTIFACT_MANAGER_URL" | grep -c '^https://')"
+        echo "URL contains localhost: $(echo "$ARTIFACT_MANAGER_URL" | grep -c 'localhost')"
+        echo "URL contains trycloudflare: $(echo "$ARTIFACT_MANAGER_URL" | grep -c 'trycloudflare')"
+        CLEAN_URL=$(echo "$ARTIFACT_MANAGER_URL" | tr -d '[:space:]')
+        curl -v -f -X POST "${CLEAN_URL}/api/ci/upload" \
           -H "X-API-Key: ${ARTIFACT_MANAGER_KEY}" \
           -F "file=@${{ steps.artifact.outputs.jar_path }}" \
           -F "artifactName=${{ github.event.repository.name }}" \
