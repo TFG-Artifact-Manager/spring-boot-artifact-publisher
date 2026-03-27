@@ -22,7 +22,6 @@ public class DemoApplication {
         //jj
         //j
         //h
-        //ldk
         SpringApplication.run(DemoApplication.class, args);
     }
 
