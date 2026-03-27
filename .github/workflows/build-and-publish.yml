@@ -63,7 +63,7 @@ jobs:
           -F "version=${{ steps.artifact.outputs.version }}" \
           -F "type=jar" \
           -F "branch=${{ github.ref_name }}" \
-          -F "commit=${{ github.sha }}" \
+          -F "commitHash=${{ github.sha }}" \
           -F "buildNumber=${{ github.run_number }}" \
           -F "pipelineProvider=github-actions" \
           -F "pipelineUrl=${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}" \
