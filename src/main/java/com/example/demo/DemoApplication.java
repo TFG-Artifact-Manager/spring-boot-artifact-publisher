@@ -19,7 +19,6 @@ public class DemoApplication {
         //OTRA BUILD
         //new build
         //DD
-        //jj
         SpringApplication.run(DemoApplication.class, args);
     }
 
