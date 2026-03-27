@@ -65,7 +65,7 @@ jobs:
           -F "branch=${{ github.ref_name }}" \
           -F "commitHash=${{ github.sha }}" \
           -F "buildNumber=${{ github.run_number }}" \
-          -F "pipelineProvider=github" \
+          -F "pipelineProvider=github-actions" \
           -F "pipelineUrl=${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
     
     - name: Upload artifact to GitHub
