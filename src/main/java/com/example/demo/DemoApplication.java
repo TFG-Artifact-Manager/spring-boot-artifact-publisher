@@ -16,7 +16,6 @@ public class DemoApplication {
         //Comentario para commit1
         //Comentario para commit2
         //Comentario para commit3
-        //OTRA BUILD
         SpringApplication.run(DemoApplication.class, args);
     }
 
