@@ -63,10 +63,12 @@ jobs:
           -F "version=${{ steps.artifact.outputs.version }}" \
           -F "type=jar" \
           -F "branch=${{ github.ref_name }}" \
-          -F "commitHash=${{ github.sha }}" \
+          -F "commit=${{ github.sha }}" \
           -F "buildNumber=${{ github.run_number }}" \
           -F "pipelineProvider=github-actions" \
-          -F "pipelineUrl=${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          -F "pipelineUrl=${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}" \
+          -F "repository=${{ github.repository }}" \
+          -F "environment=${{ github.ref_name == 'main' && 'production' || 'development' }}"
     
     - name: Upload artifact to GitHub
       uses: actions/upload-artifact@v4
