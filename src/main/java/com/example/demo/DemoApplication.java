@@ -13,8 +13,6 @@ import java.util.Map;
 public class DemoApplication {
 
     public static void main(String[] args) {
-        //Comentario para commit1
-        //Comentario para commit2
         SpringApplication.run(DemoApplication.class, args);
     }
 
